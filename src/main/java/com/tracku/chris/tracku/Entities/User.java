@@ -1,8 +1,8 @@
 package com.tracku.chris.tracku.Entities;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+
+import java.util.Date;
 
 @Entity
 @Data
@@ -12,14 +12,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long userId;
     @Column(nullable = false)
-    @NotBlank(message = "Please, provide a full name")
     private String fullName;
-    @Column(nullable = false, unique = true)
-    @Email(message="Please, provide a valid email")
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
     @Column(nullable = false, length = 60)
-    @NotBlank(message="Please, provide a password")
     private String userPassword;
-    @Column(nullable = false)
     private String imagePath;
+    @Column(nullable = false)
+    private Date createdOn = new Date();
 }
