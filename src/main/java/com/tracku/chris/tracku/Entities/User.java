@@ -2,7 +2,7 @@ package com.tracku.chris.tracku.Entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -19,5 +19,5 @@ public class User {
     private String userPassword;
     private String imagePath;
     @Column(nullable = false)
-    private Date createdOn = new Date();
+    private LocalDate createdOn = LocalDate.now();
 }
