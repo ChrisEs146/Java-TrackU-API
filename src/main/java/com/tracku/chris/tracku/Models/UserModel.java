@@ -1,24 +1,25 @@
 package com.tracku.chris.tracku.Models;
-import com.tracku.chris.tracku.CustomValidators.User.ValidateConfirmPassword;
+import com.tracku.chris.tracku.CustomValidators.User.ComparePasswords;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-@ValidateConfirmPassword(message = "Passwords do not match")
+@ComparePasswords
 public class UserModel {
-    @NotBlank(message = "Please, provide a full name")
+    @NotBlank(message = "Full name can't be empty")
+    @Size(min = 4, message = "Full name should be at least 4 chars long")
     private String fullName;
-    @Email(message="Please, provide a valid email")
-    @NotBlank(message = "Please, provide an email")
+    @Email(message="Provide a valid email")
+    @NotBlank(message = "Email can't be empty")
     private String email;
-    @NotBlank(message="Please, provide a password")
-    @Pattern(regexp = "^(?=\\S)(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#%^&*])[a-zA-Z0-9!@#%^&*]{8,20}$", message = "It should be 8-20chars, contain numbers, lowercase and uppercase letters and '!@#%^&*' special chars")
+    @NotBlank(message="Password can't be empty")
+    @Pattern(regexp = "^(?=\\S)(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#%^&*])[a-zA-Z0-9!@#%^&*]{8,20}$", message = "Password should be 8-20chars, contain numbers, lowercase and uppercase letters and '!@#%^&*' special chars")
     private String password;
-    @NotBlank(message="Please, provide a password")
+    @NotBlank(message="Confirm password can't be empty")
     private String confirmPassword;
     private String userImage;
 }
