@@ -1,5 +1,4 @@
 package com.tracku.chris.tracku.CustomValidators.Handlers;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +10,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class FieldValidatorExceptionHandler extends ResponseEntityExceptionHandler {
@@ -20,8 +18,8 @@ public class FieldValidatorExceptionHandler extends ResponseEntityExceptionHandl
         Map<String, Object> responseObject = new HashMap<>();
         responseObject.put("Timestamp: ", new Date());
         responseObject.put("Status", status.value());
-        List<String> errors = ex.getBindingResult().getFieldErrors().stream().map((error) -> error.getDefaultMessage()).toList();
-        responseObject.put("Error :",errors);
+        List<String> errors = ex.getBindingResult().getAllErrors().stream().map((error) -> error.getDefaultMessage()).toList();
+        responseObject.put("Errors", errors);
         return new ResponseEntity<>(responseObject, status);
     }
 }
