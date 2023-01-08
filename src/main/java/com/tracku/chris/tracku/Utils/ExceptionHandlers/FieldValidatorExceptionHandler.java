@@ -1,4 +1,4 @@
-package com.tracku.chris.tracku.CustomValidators.Handlers;
+package com.tracku.chris.tracku.Utils.ExceptionHandlers;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
