@@ -1,4 +1,4 @@
-package com.tracku.chris.tracku.CustomValidators.User;
+package com.tracku.chris.tracku.Utils.CustomValidators.User;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import java.lang.annotation.*;
