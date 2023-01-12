@@ -6,9 +6,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @ControllerAdvice
@@ -16,10 +15,11 @@ public class FieldValidatorExceptionHandler extends ResponseEntityExceptionHandl
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         Map<String, Object> responseObject = new HashMap<>();
-        responseObject.put("Timestamp: ", new Date());
-        responseObject.put("Status", status.value());
-        List<String> errors = ex.getBindingResult().getAllErrors().stream().map((error) -> error.getDefaultMessage()).toList();
-        responseObject.put("Errors", errors);
+        String error = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        responseObject.put("Timestamp: ", LocalDateTime.now());
+        responseObject.put("StatusCode", status.value());
+        responseObject.put("Status", status);
+        responseObject.put("Error", error);
         return new ResponseEntity<>(responseObject, status);
     }
 }
