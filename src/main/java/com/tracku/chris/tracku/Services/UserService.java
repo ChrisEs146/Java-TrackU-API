@@ -64,7 +64,7 @@ public class UserService implements IUserService {
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(requestEmail, requestPassword));
         } catch(RuntimeException ex) {
-            throw new UserUnauthorizedException("User is not authorized");
+            throw new UserUnauthorizedException("User is not authorized. Please, check your credentials");
         }
 
         String token = jwtService.createToken(_user);
