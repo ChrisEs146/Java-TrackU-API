@@ -1,7 +1,7 @@
 package com.tracku.chris.tracku.Utils.CustomResponses;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -11,5 +11,5 @@ import java.time.LocalDate;
 public class RegistrationResponse {
     private String fullName;
     private String email;
-    private LocalDate createdOn;
+    private LocalDateTime created_at;
 }

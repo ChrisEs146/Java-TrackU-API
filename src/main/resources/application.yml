@@ -10,7 +10,6 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
         ddl-auto: create-drop
-        show-sql: true
 
 app:
   secret=${JWT.SECRET}
