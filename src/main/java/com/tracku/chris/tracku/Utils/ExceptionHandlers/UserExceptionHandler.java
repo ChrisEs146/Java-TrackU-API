@@ -1,6 +1,7 @@
 package com.tracku.chris.tracku.Utils.ExceptionHandlers;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserAlreadyExistsException;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserNotFoundException;
+import com.tracku.chris.tracku.Utils.CustomExceptions.UserUnauthorizedException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,12 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleUserNotFound(EntityNotFoundException ex, WebRequest request) {
         Map<String, Object> errorObject = createErrorObject(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.value(), ex.getMessage());
         return handleExceptionInternal(ex, errorObject, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(value={UserUnauthorizedException.class})
+    protected ResponseEntity<Object> handleUserUnauthorized(RuntimeException ex, WebRequest request) {
+        Map<String, Object> errorObject = createErrorObject(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+        return handleExceptionInternal(ex, errorObject, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
     }
 
     private Map<String, Object> createErrorObject(HttpStatus status, int statusCode, String errorMsg) {
