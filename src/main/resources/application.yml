@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: ${SPRING.DATASOURCE.URL}
+    username: ${SPRING.DATASOURCE.USERNAME}
+    password: ${SPRING.DATASOURCE.PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: create-drop
+  app:
+    secret: ${JWT_SECRET}
+
