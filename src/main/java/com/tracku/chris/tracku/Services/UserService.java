@@ -8,11 +8,14 @@ import com.tracku.chris.tracku.Utils.CustomExceptions.UserNotFoundException;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserUnauthorizedException;
 import com.tracku.chris.tracku.Utils.CustomRequests.Users.AuthRequest;
 import com.tracku.chris.tracku.Utils.CustomRequests.Users.RegisterRequest;
+import com.tracku.chris.tracku.Utils.CustomRequests.Users.UpdateNameRequest;
 import com.tracku.chris.tracku.Utils.CustomResponses.AuthResponse;
 import com.tracku.chris.tracku.Utils.CustomResponses.RegistrationResponse;
+import com.tracku.chris.tracku.Utils.CustomResponses.UpdateNameResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -71,6 +74,26 @@ public class UserService implements IUserService {
 
         return AuthResponse.builder()
                 .token(token)
+                .build();
+    }
+
+    @Override
+    public UpdateNameResponse updateUsername(UpdateNameRequest request) {
+        Optional<User> user = userRepo.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+
+        if(user.isEmpty()) {
+            throw new UserNotFoundException("User does not exists");
+        }
+
+        String newName = request.getNewFullName().strip();
+        User _user = user.get();
+
+        _user.setFullName(newName);
+        User updatedUser = userRepo.save(_user);
+        System.out.println(updatedUser);
+        return UpdateNameResponse.builder()
+                .fullName(updatedUser.getFullName())
+                .email(updatedUser.getEmail())
                 .build();
     }
 }
