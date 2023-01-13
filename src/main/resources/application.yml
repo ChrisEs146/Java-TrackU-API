@@ -9,7 +9,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
-        ddl-auto: create-drop
+      ddl-auto: create-drop
+  app:
+    secret: ${JWT_SECRET}
 
-app:
-  secret=${JWT.SECRET}
