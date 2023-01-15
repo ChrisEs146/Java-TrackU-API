@@ -93,4 +93,53 @@ public class UserService implements IUserService {
                 .email(updatedUser.getEmail())
                 .build();
     }
+
+    @Override
+    public UpdatePasswordResponse updatePassword(UpdatePasswordRequest request) {
+        Optional<UserEntity> user = userRepo.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        if(user.isEmpty()) {
+            throw new UserNotFoundException("User does not exists");
+        }
+
+        UserEntity _user = user.get();
+
+        if(!passwordEncoder.matches(request.getCurrentPassword(), _user.getUserPassword())) {
+            throw new UserUnauthorizedException("Not authorized. Check your credentials");
+        }
+
+        _user.setUserPassword(passwordEncoder.encode(request.getNewPassword().strip()));
+        userRepo.save(_user);
+        return UpdatePasswordResponse.builder().build();
+    }
+
+    @Override
+    public UserInfoResponse getUserInfo() {
+        Optional<UserEntity> user = userRepo.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        if(user.isEmpty()) {
+            throw new UserNotFoundException("User does not exists");
+        }
+
+        UserEntity _user = user.get();
+        return UserInfoResponse.builder()
+                .id(_user.getUserId())
+                .fullName(_user.getFullName())
+                .email(_user.getEmail())
+                .build();
+    }
+
+    @Override
+    public DeleteUserResponse deleteUser(DeleteUserRequest request) {
+        Optional<UserEntity> user = userRepo.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        if(user.isEmpty()) {
+            throw new UserNotFoundException("User does not exists");
+        }
+
+        UserEntity _user = user.get();
+        userRepo.delete(_user);
+        return DeleteUserResponse.builder()
+                .id(_user.getUserId())
+                .fullName(_user.getFullName())
+                .email(_user.getEmail())
+                .build();
+    }
 }
