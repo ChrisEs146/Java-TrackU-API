@@ -23,7 +23,7 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, errorObject, new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
-    @ExceptionHandler(value={UserNotFoundException.class})
+    @ExceptionHandler(value={UserNotFoundException.class, EntityNotFoundException.class})
     protected ResponseEntity<Object> handleUserNotFound(EntityNotFoundException ex, WebRequest request) {
         Map<String, Object> errorObject = createErrorObject(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.value(), ex.getMessage());
         return handleExceptionInternal(ex, errorObject, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
