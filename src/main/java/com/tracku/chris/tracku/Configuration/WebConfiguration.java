@@ -1,6 +1,6 @@
 package com.tracku.chris.tracku.Configuration;
 import com.tracku.chris.tracku.Repositories.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.tracku.chris.tracku.Utils.CustomExceptions.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +25,7 @@ public class WebConfiguration {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepo.findByEmail(username).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return username -> userRepo.findByEmail(username).orElseThrow(() -> new UserNotFoundException("User does not exists"));
     }
 
     @Bean
