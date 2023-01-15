@@ -40,11 +40,12 @@ public class UserService implements IUserService {
             .userPassword(passwordEncoder.encode(request.getPassword().strip()))
             .build();
 
-        userRepo.save(newUser);
+        UserEntity createdUser = userRepo.save(newUser);
 
         return RegistrationResponse.builder()
-                .fullName(request.getFullName().strip())
-                .email(request.getEmail().strip())
+                .id(createdUser.getUserId())
+                .fullName(createdUser.getFullName())
+                .email(createdUser.getEmail())
                 .created_at(LocalDateTime.now())
                 .build();
     }
