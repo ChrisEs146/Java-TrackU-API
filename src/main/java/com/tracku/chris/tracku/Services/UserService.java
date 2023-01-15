@@ -1,17 +1,13 @@
 package com.tracku.chris.tracku.Services;
 import com.tracku.chris.tracku.Entities.User.Role;
-import com.tracku.chris.tracku.Entities.User.User;
+import com.tracku.chris.tracku.Entities.User.UserEntity;
 import com.tracku.chris.tracku.Interfaces.User.IUserService;
 import com.tracku.chris.tracku.Repositories.UserRepository;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserAlreadyExistsException;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserNotFoundException;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserUnauthorizedException;
-import com.tracku.chris.tracku.Utils.CustomRequests.Users.AuthRequest;
-import com.tracku.chris.tracku.Utils.CustomRequests.Users.RegisterRequest;
-import com.tracku.chris.tracku.Utils.CustomRequests.Users.UpdateNameRequest;
-import com.tracku.chris.tracku.Utils.CustomResponses.AuthResponse;
-import com.tracku.chris.tracku.Utils.CustomResponses.RegistrationResponse;
-import com.tracku.chris.tracku.Utils.CustomResponses.UpdateNameResponse;
+import com.tracku.chris.tracku.Utils.CustomRequests.Users.*;
+import com.tracku.chris.tracku.Utils.CustomResponses.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,13 +27,13 @@ public class UserService implements IUserService {
 
     @Override
     public RegistrationResponse registerUser(RegisterRequest request){
-        Optional<User> user = userRepo.findByEmail(request.getEmail().strip());
+        Optional<UserEntity> user = userRepo.findByEmail(request.getEmail().strip());
 
         if(user.isPresent()) {
             throw new UserAlreadyExistsException("User already exists");
         }
 
-        User newUser = User.builder()
+        UserEntity newUser = UserEntity.builder()
             .fullName(request.getFullName().strip())
             .email(request.getEmail().strip())
             .role(Role.USER)
@@ -57,12 +53,12 @@ public class UserService implements IUserService {
     public AuthResponse signInUser(AuthRequest request){
         String requestEmail = request.getEmail().strip();
         String requestPassword = request.getPassword().strip();
-        Optional<User> user = userRepo.findByEmail(requestEmail);
+        Optional<UserEntity> user = userRepo.findByEmail(requestEmail);
 
         if(user.isEmpty()) {
             throw new UserNotFoundException("User does not exists");
         }
-        User _user = user.get();
+        UserEntity _user = user.get();
 
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(requestEmail, requestPassword));
@@ -79,18 +75,17 @@ public class UserService implements IUserService {
 
     @Override
     public UpdateNameResponse updateUsername(UpdateNameRequest request) {
-        Optional<User> user = userRepo.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        Optional<UserEntity> user = userRepo.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
 
         if(user.isEmpty()) {
             throw new UserNotFoundException("User does not exists");
         }
 
         String newName = request.getNewFullName().strip();
-        User _user = user.get();
+        UserEntity _user = user.get();
 
         _user.setFullName(newName);
-        User updatedUser = userRepo.save(_user);
-        System.out.println(updatedUser);
+        UserEntity updatedUser = userRepo.save(_user);
         return UpdateNameResponse.builder()
                 .fullName(updatedUser.getFullName())
                 .email(updatedUser.getEmail())
