@@ -88,6 +88,7 @@ public class UserService implements IUserService {
         _user.setFullName(newName);
         UserEntity updatedUser = userRepo.save(_user);
         return UpdateNameResponse.builder()
+                .id(updatedUser.getUserId())
                 .fullName(updatedUser.getFullName())
                 .email(updatedUser.getEmail())
                 .build();
