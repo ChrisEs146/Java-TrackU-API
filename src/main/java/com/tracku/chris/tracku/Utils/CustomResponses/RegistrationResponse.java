@@ -3,12 +3,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegistrationResponse {
+    private long id;
     private String fullName;
     private String email;
     private LocalDateTime created_at;
