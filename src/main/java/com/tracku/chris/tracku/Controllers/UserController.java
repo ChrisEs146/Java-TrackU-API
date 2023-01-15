@@ -31,4 +31,22 @@ public class UserController {
         UpdateNameResponse response = userService.updateUsername(request);
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/update-password")
+    public ResponseEntity<UpdatePasswordResponse> updatePassword(@Valid @RequestBody UpdatePasswordRequest request) {
+        UpdatePasswordResponse response = userService.updatePassword(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/delete-user")
+    public ResponseEntity<DeleteUserResponse> deleteUser(@Valid @RequestBody DeleteUserRequest request) {
+        DeleteUserResponse response = userService.deleteUser(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/get-info")
+    public ResponseEntity<UserInfoResponse> getUserInfo() {
+        UserInfoResponse response = userService.getUserInfo();
+        return ResponseEntity.ok(response);
+    }
 }
