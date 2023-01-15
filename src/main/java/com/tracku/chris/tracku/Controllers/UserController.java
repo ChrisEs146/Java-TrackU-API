@@ -1,11 +1,7 @@
 package com.tracku.chris.tracku.Controllers;
 import com.tracku.chris.tracku.Services.UserService;
-import com.tracku.chris.tracku.Utils.CustomRequests.Users.AuthRequest;
-import com.tracku.chris.tracku.Utils.CustomRequests.Users.RegisterRequest;
-import com.tracku.chris.tracku.Utils.CustomRequests.Users.UpdateNameRequest;
-import com.tracku.chris.tracku.Utils.CustomResponses.AuthResponse;
-import com.tracku.chris.tracku.Utils.CustomResponses.RegistrationResponse;
-import com.tracku.chris.tracku.Utils.CustomResponses.UpdateNameResponse;
+import com.tracku.chris.tracku.Utils.CustomRequests.Users.*;
+import com.tracku.chris.tracku.Utils.CustomResponses.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,7 +26,7 @@ public class UserController {
         return ResponseEntity.ok(userToken);
     }
 
-    @PostMapping("/update-name")
+    @PatchMapping("/update-name")
     public ResponseEntity<UpdateNameResponse> updateUsername(@Valid @RequestBody UpdateNameRequest request) {
         UpdateNameResponse response = userService.updateUsername(request);
         return ResponseEntity.ok(response);
