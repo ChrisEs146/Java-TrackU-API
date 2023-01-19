@@ -97,7 +97,7 @@ public class JwtService {
      * @return Key
      * */
     private Key getJwtSecret() {
-        byte[] secretBytes = Decoders.BASE64.decode(JWT_SECRET);
+        byte[] secretBytes = Decoders.BASE64.decode(ACCESS_TOKEN_SECRET);
         return Keys.hmacShaKeyFor(secretBytes);
     }
 }
