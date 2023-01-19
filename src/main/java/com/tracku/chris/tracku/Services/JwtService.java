@@ -40,11 +40,11 @@ public class JwtService {
 
     /**
      * Creates and returns a JWT token using the user details
-     * @param userDetails Object with user details
+     * @param username The user's email
      * @return JWT token
      * */
-    public String createToken(@NonNull UserDetails userDetails) {
-        return createToken(new HashMap<>(), userDetails);
+    public String createToken(@NonNull String username) {
+        return createToken(new HashMap<>(), username);
     }
 
     /**
