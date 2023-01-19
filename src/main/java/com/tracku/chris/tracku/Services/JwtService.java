@@ -23,17 +23,17 @@ public class JwtService {
      * Creates and returns a JWT token using the user details
      * and extraClaims
      * @param extraClaims Possible extra claims like roles or any other custom claim.
-     * @param userDetails Object with the userDetails.
+     * @param username The user's email
      * @return jwt token
      * */
-    public String createToken(Map<String, Object> extraClaims, @NonNull UserDetails userDetails) {
+    public String createToken(Map<String, Object> extraClaims, @NonNull String username) {
 
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRY_TIME))
                 .signWith(getJwtSecret(), SignatureAlgorithm.HS512)
                 .compact();
     }
