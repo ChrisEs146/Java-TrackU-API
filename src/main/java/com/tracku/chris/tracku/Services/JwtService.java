@@ -50,12 +50,12 @@ public class JwtService {
     /**
      * Verifies if the token is valid.
      * @param token The JWT token
-     * @param userDetails Object with user details
+     * @param currentUsername The user's email
      * */
-    public Boolean isTokenValid(String token, UserDetails userDetails) {
+    public Boolean isTokenValid(String token, String currentUsername) {
         final String username = extractUsername(token);
         final Date expirationDate = extractClaimFromToken(token, Claims::getExpiration);
-        return username.equals(userDetails.getUsername()) && expirationDate.after(new Date());
+        return username.equals(currentUsername) && expirationDate.after(new Date());
     }
 
     /**
