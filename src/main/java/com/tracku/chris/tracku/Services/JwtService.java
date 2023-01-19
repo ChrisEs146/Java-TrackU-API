@@ -6,7 +6,6 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
@@ -17,7 +16,8 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     @Value("${spring.app.secret}")
-    private String JWT_SECRET;
+    private String ACCESS_TOKEN_SECRET;
+    private static final long EXPIRY_TIME = 1000 * 60 * 20;
 
     /**
      * Creates and returns a JWT token using the user details
