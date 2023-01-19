@@ -110,16 +110,16 @@ public class UserService implements IUserService {
 
     @Override
     public UserInfoResponse getUserInfo() {
-        Optional<UserEntity> user = userRepo.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        if(user.isEmpty()) {
-            throw new UserNotFoundException("User does not exists");
-        }
+        UserEntity user = userRepo.findByEmail(SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName())
+                .get();
 
-        UserEntity _user = user.get();
         return UserInfoResponse.builder()
-                .id(_user.getUserId())
-                .fullName(_user.getFullName())
-                .email(_user.getEmail())
+                .id(user.getUser_Id())
+                .fullName(user.getFull_name())
+                .email(user.getEmail())
                 .build();
     }
 
