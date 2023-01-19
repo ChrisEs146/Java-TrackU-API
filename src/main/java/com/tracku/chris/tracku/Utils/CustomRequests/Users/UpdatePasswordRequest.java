@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 @Getter
+@Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdatePasswordRequest {
