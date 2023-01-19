@@ -93,19 +93,18 @@ public class UserService implements IUserService {
 
     @Override
     public UpdatePasswordResponse updatePassword(UpdatePasswordRequest request) {
-        Optional<UserEntity> user = userRepo.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        if(user.isEmpty()) {
-            throw new UserNotFoundException("User does not exists");
-        }
+        UserEntity user = userRepo.findByEmail(SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName())
+                .get();
 
-        UserEntity _user = user.get();
-
-        if(!passwordEncoder.matches(request.getCurrentPassword(), _user.getUserPassword())) {
+        if(!passwordEncoder.matches(request.getCurrentPassword(), user.getUser_password())) {
             throw new UserUnauthorizedException("Not authorized. Check your credentials");
         }
 
-        _user.setUserPassword(passwordEncoder.encode(request.getNewPassword().strip()));
-        userRepo.save(_user);
+        user.setUser_password(passwordEncoder.encode(request.getNewPassword().strip()));
+        userRepo.save(user);
         return UpdatePasswordResponse.builder().build();
     }
 
