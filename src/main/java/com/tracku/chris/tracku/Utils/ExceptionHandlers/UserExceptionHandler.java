@@ -36,6 +36,12 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, errorObject, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
     }
 
+    @ExceptionHandler(value = {AuthenticationException.class})
+    protected ResponseEntity<Object> handleAuthenticationError(AuthenticationException ex) {
+        Map<String, Object> errorObject = createErrorObject(HttpStatus.UNAUTHORIZED, HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorObject);
+    }
+
     private Map<String, Object> createErrorObject(HttpStatus status, int statusCode, String errorMsg) {
         Map<String, Object> errorObject = new HashMap<>();
         errorObject.put("Timestamp", LocalDateTime.now());
