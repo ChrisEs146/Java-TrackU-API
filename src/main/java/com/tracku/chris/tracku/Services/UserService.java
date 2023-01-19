@@ -1,5 +1,4 @@
 package com.tracku.chris.tracku.Services;
-import com.tracku.chris.tracku.Entities.User.Role;
 import com.tracku.chris.tracku.Entities.User.UserEntity;
 import com.tracku.chris.tracku.Interfaces.User.IUserService;
 import com.tracku.chris.tracku.Repositories.UserRepository;
@@ -34,17 +33,16 @@ public class UserService implements IUserService {
         }
 
         UserEntity newUser = UserEntity.builder()
-            .fullName(request.getFullName().strip())
+            .full_name(request.getFullName().strip())
             .email(request.getEmail().strip())
-            .role(Role.USER)
-            .userPassword(passwordEncoder.encode(request.getPassword().strip()))
+            .user_password(passwordEncoder.encode(request.getPassword().strip()))
             .build();
 
         UserEntity createdUser = userRepo.save(newUser);
 
         return RegistrationResponse.builder()
-                .id(createdUser.getUserId())
-                .fullName(createdUser.getFullName())
+                .id(createdUser.getUser_Id())
+                .fullName(createdUser.getFull_name())
                 .email(createdUser.getEmail())
                 .created_at(LocalDateTime.now())
                 .build();
