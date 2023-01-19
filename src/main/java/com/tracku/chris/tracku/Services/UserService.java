@@ -74,20 +74,19 @@ public class UserService implements IUserService {
 
     @Override
     public UpdateNameResponse updateUsername(UpdateNameRequest request) {
-        Optional<UserEntity> user = userRepo.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-
-        if(user.isEmpty()) {
-            throw new UserNotFoundException("User does not exists");
-        }
+        UserEntity user = userRepo.findByEmail(SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName())
+                .get();
 
         String newName = request.getNewFullName().strip();
-        UserEntity _user = user.get();
 
-        _user.setFullName(newName);
-        UserEntity updatedUser = userRepo.save(_user);
+        user.setFull_name(newName);
+        UserEntity updatedUser = userRepo.save(user);
         return UpdateNameResponse.builder()
-                .id(updatedUser.getUserId())
-                .fullName(updatedUser.getFullName())
+                .id(updatedUser.getUser_Id())
+                .fullName(updatedUser.getFull_name())
                 .email(updatedUser.getEmail())
                 .build();
     }
