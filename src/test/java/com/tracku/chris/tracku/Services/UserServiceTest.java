@@ -133,12 +133,8 @@ class UserServiceTest {
                 .email(user.getEmail())
                 .password(user.getUser_password())
                 .build();
-        CustomUserDetailsService userDetailsService = mock(CustomUserDetailsService.class);
-        AuthenticationManager authManager = mock(AuthenticationManager.class);
 
         when(userRepo.findByEmail(anyString())).thenReturn(Optional.of(user));
-        Authentication auth = mock(UsernamePasswordAuthenticationToken.class);
-        auth.setAuthenticated(false);
 
         Assertions.assertThatThrownBy(() -> userService.signInUser(request))
                 .isInstanceOf(UserUnauthorizedException.class)
