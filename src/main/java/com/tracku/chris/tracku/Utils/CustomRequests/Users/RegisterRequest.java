@@ -11,7 +11,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ComparePasswords
+@ComparePasswords(password = "password", confirmPassword = "confirmPassword")
 public class RegisterRequest {
     @NotBlank(message = "Full name can't be empty")
     @Size(min = 4, message = "Full name should be at least 4 chars long")
