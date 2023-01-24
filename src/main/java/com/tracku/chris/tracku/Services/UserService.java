@@ -118,11 +118,12 @@ public class UserService implements IUserService {
 
     @Override
     public UserInfoResponse getUserInfo() {
-        UserEntity user = userRepo.findByEmail(SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName())
-                .get();
+       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+       if(!auth.isAuthenticated()) {
+           throw new UserUnauthorizedException(UserErrorMsg.UNAUTHORIZED.label);
+       }
+
+       UserEntity user = getAuthUser(auth);
 
         return UserInfoResponse.builder()
                 .id(user.getUser_Id())
