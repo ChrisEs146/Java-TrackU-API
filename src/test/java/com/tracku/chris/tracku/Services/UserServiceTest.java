@@ -260,8 +260,97 @@ class UserServiceTest {
     }
 
     @Test
-    @Disabled
-    public void getUserInfo() {
+    public void userService_UpdatePassword_ThrowsException_MatchingPasswords() {
+        UpdatePasswordRequest request = UpdatePasswordRequest.builder()
+                .currentPassword(user.getUser_password())
+                .newPassword("superStrongpass22%@")
+                .confirmPassword("superStrongpass22%@")
+                .build();
+        Authentication auth = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        auth.setAuthenticated(true);
+
+        when(auth.isAuthenticated()).thenReturn(true);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+        when(auth.getPrincipal()).thenReturn(userDetails);
+        given(passwordEncoder.matches(anyString(), anyString())).willReturn(false);
+
+        Assertions.assertThatThrownBy(() -> userService.updatePassword(request))
+                .isInstanceOf(UserUnauthorizedException.class)
+                .hasMessageContaining(UserErrorMsg.INVALID_CURRENT_PASSWORD.label);
+
+        verify(userRepo, never()).save(any());
+    }
+
+    @Test
+    public void userService_UpdatePassword_SavesUser() {
+        UpdatePasswordRequest request = UpdatePasswordRequest.builder()
+                .currentPassword(user.getUser_password())
+                .newPassword("superStrongpass22%@")
+                .confirmPassword("superStrongpass22%@")
+                .build();
+        user.setUser_password(request.getNewPassword());
+        Authentication auth = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        auth.setAuthenticated(true);
+
+        when(auth.isAuthenticated()).thenReturn(true);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+        when(auth.getPrincipal()).thenReturn(userDetails);
+        given(passwordEncoder.matches(anyString(), anyString())).willReturn(true);
+
+        userService.updatePassword(request);
+        ArgumentCaptor<UserEntity> requestArgumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        verify(userRepo).save(requestArgumentCaptor.capture());
+        UserEntity capturedUser = requestArgumentCaptor.getValue();
+
+        Assertions.assertThat(capturedUser).isNotNull();
+        Assertions.assertThat(capturedUser.getFull_name()).isEqualTo(user.getFull_name());
+        Assertions.assertThat(capturedUser.getEmail()).isEqualTo(user.getEmail());
+        Assertions.assertThat(capturedUser.getUser_password()).isEqualTo(user.getUser_password());
+    }
+
+    @Test
+    public void userService_UpdatePassword_ReturnsUpdatePasswordResponse() {
+        UpdatePasswordRequest request = UpdatePasswordRequest.builder()
+                .currentPassword(user.getUser_password())
+                .newPassword("superStrongpass22%@")
+                .confirmPassword("superStrongpass22%@")
+                .build();
+        Authentication auth = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        auth.setAuthenticated(true);
+
+        when(auth.isAuthenticated()).thenReturn(true);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+        when(auth.getPrincipal()).thenReturn(userDetails);
+        given(passwordEncoder.matches(anyString(), anyString())).willReturn(true);
+
+        UpdatePasswordResponse response = userService.updatePassword(request);
+
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getMessage()).isEqualTo("Password updated successfully");
+    }
+
+    @Test
+    public void userService_GetUserInfo_ThrowsUserUnauthorizedException() {
+        Authentication auth = mock(Authentication.class);
+        auth.setAuthenticated(false);
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(auth.isAuthenticated()).thenReturn(false);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        Assertions.assertThatThrownBy(() -> userService.getUserInfo())
+                .isInstanceOf(UserUnauthorizedException.class)
+                .hasMessageContaining(UserErrorMsg.UNAUTHORIZED.label);
     }
 
     @Test
