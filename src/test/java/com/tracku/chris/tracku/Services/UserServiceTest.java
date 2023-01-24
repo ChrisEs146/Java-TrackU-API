@@ -133,7 +133,7 @@ class UserServiceTest {
 
         Assertions.assertThatThrownBy(() -> userService.signInUser(request))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessageContaining("User does not exists");
+                .hasMessageContaining(UserErrorMsg.NOT_FOUND.label);
         verify(authManager, never()).authenticate(any());
         verify(jwtService, never()).createToken(any());
     }
@@ -146,10 +146,11 @@ class UserServiceTest {
                 .build();
 
         when(userRepo.findByEmail(anyString())).thenReturn(Optional.of(user));
+        given(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willThrow(new RuntimeException("Bad credentials"));
 
-        Assertions.assertThatThrownBy(() -> userService.signInUser(request))
+         Assertions.assertThatThrownBy(() -> userService.signInUser(request))
                 .isInstanceOf(UserUnauthorizedException.class)
-                .hasMessageContaining("User is not authorized. Please, check your credentials");
+                .hasMessageContaining(UserErrorMsg.INVALID_CREDENTIALS.label);
         verify(jwtService, never()).createToken(any());
     }
 
