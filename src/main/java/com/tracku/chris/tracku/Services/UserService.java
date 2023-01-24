@@ -60,7 +60,6 @@ public class UserService implements IUserService {
         if(user.isEmpty()) {
             throw new UserNotFoundException(UserErrorMsg.NOT_FOUND.label);
         }
-        UserEntity _user = user.get();
 
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(requestEmail, requestPassword));
@@ -86,7 +85,6 @@ public class UserService implements IUserService {
         UserEntity user = getAuthUser(auth);
 
         String newName = request.getNewFullName().strip();
-
         user.setFull_name(newName);
         UserEntity updatedUser = userRepo.save(user);
 
