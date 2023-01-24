@@ -1,5 +1,6 @@
 package com.tracku.chris.tracku.Services;
 
+import com.tracku.chris.tracku.Entities.User.CustomUserDetails;
 import com.tracku.chris.tracku.Entities.User.UserEntity;
 import com.tracku.chris.tracku.Repositories.UserRepository;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserAlreadyExistsException;
@@ -7,7 +8,12 @@ import com.tracku.chris.tracku.Utils.CustomExceptions.UserNotFoundException;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserUnauthorizedException;
 import com.tracku.chris.tracku.Utils.CustomRequests.Users.AuthRequest;
 import com.tracku.chris.tracku.Utils.CustomRequests.Users.RegisterRequest;
+import com.tracku.chris.tracku.Utils.CustomRequests.Users.UpdateNameRequest;
+import com.tracku.chris.tracku.Utils.CustomRequests.Users.UpdatePasswordRequest;
+import com.tracku.chris.tracku.Utils.CustomResponses.AuthResponse;
 import com.tracku.chris.tracku.Utils.CustomResponses.RegistrationResponse;
+import com.tracku.chris.tracku.Utils.CustomResponses.UpdateNameResponse;
+import com.tracku.chris.tracku.Utils.ErrorMessages.UserErrorMsg;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -20,6 +26,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDateTime;
 import java.util.Optional;
