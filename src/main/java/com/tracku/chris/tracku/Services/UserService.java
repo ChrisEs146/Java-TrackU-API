@@ -32,7 +32,7 @@ public class UserService implements IUserService {
         Optional<UserEntity> user = userRepo.findByEmail(request.getEmail().strip());
 
         if(user.isPresent()) {
-            throw new UserAlreadyExistsException("User already exists");
+            throw new UserAlreadyExistsException(UserErrorMsg.USER_EXISTS.label);
         }
 
         UserEntity newUser = UserEntity.builder()
@@ -58,14 +58,14 @@ public class UserService implements IUserService {
         Optional<UserEntity> user = userRepo.findByEmail(requestEmail);
 
         if(user.isEmpty()) {
-            throw new UserNotFoundException("User does not exists");
+            throw new UserNotFoundException(UserErrorMsg.NOT_FOUND.label);
         }
         UserEntity _user = user.get();
 
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(requestEmail, requestPassword));
         } catch(RuntimeException ex) {
-            throw new UserUnauthorizedException("User is not authorized. Please, check your credentials");
+            throw new UserUnauthorizedException(UserErrorMsg.INVALID_CREDENTIALS.label);
         }
 
         String token = jwtService.createToken(_user.getEmail());
@@ -103,7 +103,7 @@ public class UserService implements IUserService {
                 .get();
 
         if(!passwordEncoder.matches(request.getCurrentPassword(), user.getUser_password())) {
-            throw new UserUnauthorizedException("Not authorized. Check your credentials");
+            throw new UserUnauthorizedException(UserErrorMsg.INVALID_CURRENT_PASSWORD.label);
         }
 
         user.setUser_password(passwordEncoder.encode(request.getNewPassword().strip()));
