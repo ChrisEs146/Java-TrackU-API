@@ -89,6 +89,7 @@ public class UserService implements IUserService {
 
         user.setFull_name(newName);
         UserEntity updatedUser = userRepo.save(user);
+
         return UpdateNameResponse.builder()
                 .id(updatedUser.getUser_Id())
                 .fullName(updatedUser.getFull_name())
@@ -98,11 +99,12 @@ public class UserService implements IUserService {
 
     @Override
     public UpdatePasswordResponse updatePassword(UpdatePasswordRequest request) {
-        UserEntity user = userRepo.findByEmail(SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName())
-                .get();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(!auth.isAuthenticated()) {
+            throw new UserUnauthorizedException(UserErrorMsg.UNAUTHORIZED.label);
+        }
+
+        UserEntity user = getAuthUser(auth);
 
         if(!passwordEncoder.matches(request.getCurrentPassword(), user.getUser_password())) {
             throw new UserUnauthorizedException(UserErrorMsg.INVALID_CURRENT_PASSWORD.label);
@@ -110,6 +112,7 @@ public class UserService implements IUserService {
 
         user.setUser_password(passwordEncoder.encode(request.getNewPassword().strip()));
         userRepo.save(user);
+
         return UpdatePasswordResponse.builder().build();
     }
 
