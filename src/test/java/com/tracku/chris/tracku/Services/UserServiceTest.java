@@ -44,6 +44,9 @@ class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
+    private AuthenticationManager authManager;
+
+    @Mock
     private JwtService jwtService;
 
     @InjectMocks
