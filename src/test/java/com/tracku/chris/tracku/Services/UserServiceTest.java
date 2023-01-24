@@ -193,6 +193,61 @@ class UserServiceTest {
     }
 
     @Test
+    public void userService_UpdateUsername_SavesUser() {
+        UpdateNameRequest request = UpdateNameRequest.builder()
+                .newFullName("Arthur Salas")
+                .build();
+        UserEntity updatedUserTest = user;
+        updatedUserTest.setFull_name(request.getNewFullName());
+        Authentication auth = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        auth.setAuthenticated(true);
+
+        when(userRepo.save(any(UserEntity.class))).thenReturn(updatedUserTest);
+        when(auth.isAuthenticated()).thenReturn(true);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+        when(auth.getPrincipal()).thenReturn(userDetails);
+        userService.updateUsername(request);
+
+        ArgumentCaptor<UserEntity> requestArgumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        verify(userRepo).save(requestArgumentCaptor.capture());
+        UserEntity capturedUser = requestArgumentCaptor.getValue();
+
+        Assertions.assertThat(capturedUser).isNotNull();
+        Assertions.assertThat(capturedUser.getFull_name()).isEqualTo(updatedUserTest.getFull_name());
+        Assertions.assertThat(capturedUser.getEmail()).isEqualTo(updatedUserTest.getEmail());
+    }
+
+    @Test
+    public void userService_UpdateUsername_ReturnsUpdateNameResponse() {
+        UpdateNameRequest request = UpdateNameRequest.builder()
+                .newFullName("Arthur Salas")
+                .build();
+        UserEntity updatedUserTest = user;
+        updatedUserTest.setFull_name(request.getNewFullName());
+        Authentication auth = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        auth.setAuthenticated(true);
+
+        when(auth.isAuthenticated()).thenReturn(true);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+        when(auth.getPrincipal()).thenReturn(userDetails);
+        when(userRepo.save(any(UserEntity.class))).thenReturn(updatedUserTest);
+        UpdateNameResponse response = userService.updateUsername(request);
+
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getId()).isGreaterThan(0);
+        Assertions.assertThat(response.getFullName()).isEqualTo(updatedUserTest.getFull_name());
+
+
+
+    }
+
+    @Test
     @Disabled
     public void updatePassword() {
     }
