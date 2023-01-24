@@ -154,4 +154,14 @@ public class UserService implements IUserService {
                 .email(user.getEmail())
                 .build();
     }
+
+    /**
+     * Extracts the authenticated user details from an authentication object
+     * @param auth Authentication Auth object from the SCH(Security Context Holder)
+     * @return UserEntity
+     * */
+    private UserEntity getAuthUser(Authentication auth) {
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        return userDetails.getUser();
+    }
 }
