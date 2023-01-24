@@ -1,4 +1,5 @@
 package com.tracku.chris.tracku.Services;
+import com.tracku.chris.tracku.Entities.User.CustomUserDetails;
 import com.tracku.chris.tracku.Entities.User.UserEntity;
 import com.tracku.chris.tracku.Interfaces.User.IUserService;
 import com.tracku.chris.tracku.Repositories.UserRepository;
@@ -7,9 +8,11 @@ import com.tracku.chris.tracku.Utils.CustomExceptions.UserNotFoundException;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserUnauthorizedException;
 import com.tracku.chris.tracku.Utils.CustomRequests.Users.*;
 import com.tracku.chris.tracku.Utils.CustomResponses.*;
+import com.tracku.chris.tracku.Utils.ErrorMessages.UserErrorMsg;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
