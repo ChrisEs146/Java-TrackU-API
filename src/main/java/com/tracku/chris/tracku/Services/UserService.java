@@ -134,11 +134,18 @@ public class UserService implements IUserService {
 
     @Override
     public DeleteUserResponse deleteUser(DeleteUserRequest request) {
-        UserEntity user = userRepo.findByEmail(SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName())
-                .get();
+        String requestEmail = request.getEmail().strip();
+        String requestPassword = request.getPassword().strip();
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(!auth.isAuthenticated()) {
+            throw new UserUnauthorizedException(UserErrorMsg.UNAUTHORIZED.label);
+        }
+
+        UserEntity user = getAuthUser(auth);
+        if(!user.getEmail().equals(requestEmail) || !passwordEncoder.matches(requestPassword, user.getUser_password())) {
+            throw new UserUnauthorizedException(UserErrorMsg.INVALID_CREDENTIALS.label);
+        }
 
         userRepo.delete(user);
         return DeleteUserResponse.builder()
