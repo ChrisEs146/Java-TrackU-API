@@ -68,6 +68,7 @@ public class UserService implements IUserService {
             throw new UserUnauthorizedException(UserErrorMsg.INVALID_CREDENTIALS.label);
         }
 
+        UserEntity _user = user.get();
         String token = jwtService.createToken(_user.getEmail());
 
         return AuthResponse.builder()
@@ -77,11 +78,12 @@ public class UserService implements IUserService {
 
     @Override
     public UpdateNameResponse updateUsername(UpdateNameRequest request) {
-        UserEntity user = userRepo.findByEmail(SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName())
-                .get();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(!auth.isAuthenticated()) {
+            throw new UserUnauthorizedException(UserErrorMsg.UNAUTHORIZED.label);
+        }
+
+        UserEntity user = getAuthUser(auth);
 
         String newName = request.getNewFullName().strip();
 
