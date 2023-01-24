@@ -354,7 +354,115 @@ class UserServiceTest {
     }
 
     @Test
-    @Disabled
-    public void deleteUser() {
+    public void userService_GetUserInfo_ReturnsUserInfoResponse() {
+        Authentication auth = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        auth.setAuthenticated(true);
+
+        when(auth.isAuthenticated()).thenReturn(true);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+        when(auth.getPrincipal()).thenReturn(userDetails);
+        UserInfoResponse response = userService.getUserInfo();
+
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getId()).isGreaterThan(0);
+        Assertions.assertThat(response.getFullName()).isEqualTo(user.getFull_name());
+        Assertions.assertThat(response.getEmail()).isEqualTo(user.getEmail());
+    }
+
+    @Test
+    public void userService_DeleteUser_ThrowsUserUnauthorizedException() {
+        DeleteUserRequest request = DeleteUserRequest.builder()
+                .email(user.getEmail())
+                .password(user.getUser_password())
+                .build();
+        Authentication auth = mock(Authentication.class);
+        auth.setAuthenticated(false);
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(auth.isAuthenticated()).thenReturn(false);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        Assertions.assertThatThrownBy(() -> userService.deleteUser(request))
+                .isInstanceOf(UserUnauthorizedException.class)
+                .hasMessageContaining(UserErrorMsg.UNAUTHORIZED.label);
+    }
+
+    @Test
+    public void userService_DeleteUser_ThrowsException_WhenBadCredentials() {
+        DeleteUserRequest request = DeleteUserRequest.builder()
+                .email("roger@email.com")
+                .password(user.getUser_password())
+                .build();
+        Authentication auth = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        auth.setAuthenticated(true);
+
+        when(auth.isAuthenticated()).thenReturn(true);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+        when(auth.getPrincipal()).thenReturn(userDetails);
+        given(passwordEncoder.matches(anyString(), anyString())).willReturn(false);
+
+        Assertions.assertThatThrownBy(() -> userService.deleteUser(request))
+                .isInstanceOf(UserUnauthorizedException.class)
+                .hasMessageContaining(UserErrorMsg.INVALID_CREDENTIALS.label);
+
+        verify(userRepo, never()).delete(any());
+    }
+
+    @Test
+    public void userService_DeleteUser_DeletesUser() {
+        DeleteUserRequest request = DeleteUserRequest.builder()
+                .email(user.getEmail())
+                .password(user.getUser_password())
+                .build();
+        Authentication auth = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        auth.setAuthenticated(true);
+
+        when(auth.isAuthenticated()).thenReturn(true);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+        when(auth.getPrincipal()).thenReturn(userDetails);
+
+        userService.deleteUser(request);
+        ArgumentCaptor<UserEntity> requestArgumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        verify(userRepo).delete(requestArgumentCaptor.capture());
+        UserEntity capturedUser = requestArgumentCaptor.getValue();
+
+        Assertions.assertThat(capturedUser).isNotNull();
+        Assertions.assertThat(capturedUser.getUser_Id()).isGreaterThan(0);
+        Assertions.assertThat(capturedUser.getFull_name()).isEqualTo(user.getFull_name());
+        Assertions.assertThat(capturedUser.getEmail()).isEqualTo(user.getEmail());
+    }
+
+    @Test
+    public void userService_DeleteUser_ReturnsDeleteUserResponse() {
+        DeleteUserRequest request = DeleteUserRequest.builder()
+                .email(user.getEmail())
+                .password(user.getUser_password())
+                .build();
+        Authentication auth = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        auth.setAuthenticated(true);
+
+        when(auth.isAuthenticated()).thenReturn(true);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+        when(auth.getPrincipal()).thenReturn(userDetails);
+
+        DeleteUserResponse response = userService.deleteUser(request);
+
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getId()).isGreaterThan(0);
+        Assertions.assertThat(response.getFullName()).isEqualTo(user.getFull_name());
+        Assertions.assertThat(response.getEmail()).isEqualTo(user.getEmail());
     }
 }
