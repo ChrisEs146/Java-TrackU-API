@@ -141,7 +141,7 @@ public class UserService implements IUserService {
         }
 
         UserEntity user = getAuthUser(auth);
-        if(!user.getEmail().equals(requestEmail) || !passwordEncoder.matches(requestPassword, user.getUser_password())) {
+        if(!user.getEmail().equals(requestEmail) && !passwordEncoder.matches(requestPassword, user.getUser_password())) {
             throw new UserUnauthorizedException(UserErrorMsg.INVALID_CREDENTIALS.label);
         }
 
