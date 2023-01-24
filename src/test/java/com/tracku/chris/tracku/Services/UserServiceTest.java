@@ -248,8 +248,24 @@ class UserServiceTest {
     }
 
     @Test
-    @Disabled
-    public void updatePassword() {
+    public void userService_UpdatePassword_ThrowsUserUnauthorizedException() {
+        UpdatePasswordRequest request = UpdatePasswordRequest.builder()
+                .currentPassword(user.getUser_password())
+                .newPassword("superStrongpass22%@")
+                .confirmPassword("superStrongpass22%@")
+                .build();
+        Authentication auth = mock(Authentication.class);
+        auth.setAuthenticated(false);
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(auth.isAuthenticated()).thenReturn(false);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+        Assertions.assertThatThrownBy(() -> userService.updatePassword(request))
+                .isInstanceOf(UserUnauthorizedException.class)
+                .hasMessageContaining(UserErrorMsg.UNAUTHORIZED.label);
+        verify(userRepo, never()).save(any());
+        verify(passwordEncoder, never()).matches(any(), any());
     }
 
     @Test
