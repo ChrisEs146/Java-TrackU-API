@@ -6,17 +6,11 @@ import com.tracku.chris.tracku.Repositories.UserRepository;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserAlreadyExistsException;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserNotFoundException;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserUnauthorizedException;
-import com.tracku.chris.tracku.Utils.CustomRequests.Users.AuthRequest;
-import com.tracku.chris.tracku.Utils.CustomRequests.Users.RegisterRequest;
-import com.tracku.chris.tracku.Utils.CustomRequests.Users.UpdateNameRequest;
-import com.tracku.chris.tracku.Utils.CustomRequests.Users.UpdatePasswordRequest;
-import com.tracku.chris.tracku.Utils.CustomResponses.AuthResponse;
-import com.tracku.chris.tracku.Utils.CustomResponses.RegistrationResponse;
-import com.tracku.chris.tracku.Utils.CustomResponses.UpdateNameResponse;
+import com.tracku.chris.tracku.Utils.CustomRequests.Users.*;
+import com.tracku.chris.tracku.Utils.CustomResponses.*;
 import com.tracku.chris.tracku.Utils.ErrorMessages.UserErrorMsg;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -225,8 +219,7 @@ class UserServiceTest {
         UpdateNameRequest request = UpdateNameRequest.builder()
                 .newFullName("Arthur Salas")
                 .build();
-        UserEntity updatedUserTest = user;
-        updatedUserTest.setFull_name(request.getNewFullName());
+        user.setFull_name(request.getNewFullName());
         Authentication auth = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         CustomUserDetails userDetails = new CustomUserDetails(user);
@@ -236,15 +229,12 @@ class UserServiceTest {
         when(securityContext.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(securityContext);
         when(auth.getPrincipal()).thenReturn(userDetails);
-        when(userRepo.save(any(UserEntity.class))).thenReturn(updatedUserTest);
+        when(userRepo.save(any(UserEntity.class))).thenReturn(user);
         UpdateNameResponse response = userService.updateUsername(request);
 
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.getId()).isGreaterThan(0);
-        Assertions.assertThat(response.getFullName()).isEqualTo(updatedUserTest.getFull_name());
-
-
-
+        Assertions.assertThat(response.getFullName()).isEqualTo(user.getFull_name());
     }
 
     @Test
@@ -261,6 +251,7 @@ class UserServiceTest {
         when(auth.isAuthenticated()).thenReturn(false);
         when(securityContext.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(securityContext);
+
         Assertions.assertThatThrownBy(() -> userService.updatePassword(request))
                 .isInstanceOf(UserUnauthorizedException.class)
                 .hasMessageContaining(UserErrorMsg.UNAUTHORIZED.label);
