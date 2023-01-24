@@ -98,7 +98,7 @@ class UserServiceTest {
         given(userRepo.findByEmail(request.getEmail())).willReturn(Optional.of(user));
         Assertions.assertThatThrownBy(() -> userService.registerUser(request))
                 .isInstanceOf(UserAlreadyExistsException.class)
-                .hasMessageContaining("User already exists");
+                .hasMessageContaining(UserErrorMsg.USER_EXISTS.label);
 
         verify(userRepo, never()).save(any());
     }
@@ -155,8 +155,41 @@ class UserServiceTest {
     }
 
     @Test
-    @Disabled
-    public void updateUsername() {
+    public void userService_SignInUser_ReturnsAuthResponse() {
+        AuthRequest request = AuthRequest.builder()
+                .email(user.getEmail())
+                .password(user.getUser_password())
+                .build();
+        String testToken = "eyJhbGciOiJIUzI1NiJ9.eyJVc2VybmFtZSI6IkFydGh1ciBNb3JnYW4iLCJJZCI6IjEifQ.YK497eKwf7o02dJ4aOf1imhJC1iZfp2K_3qiizfe-As";
+        Authentication auth = mock(Authentication.class);
+        auth.setAuthenticated(true);
+
+        when(userRepo.findByEmail(anyString())).thenReturn(Optional.of(user));
+        given(authManager.authenticate(any())).willReturn(auth);
+        when(jwtService.createToken(anyString())).thenReturn(testToken);
+        AuthResponse testResponse = userService.signInUser(request);
+
+        Assertions.assertThat(testResponse).isNotNull();
+        Assertions.assertThat(testResponse.getToken()).isInstanceOf(String.class);
+        Assertions.assertThat(testResponse.getToken()).isEqualTo(testToken);
+    }
+
+    @Test
+    public void userService_UpdateUsername_ThrowsUserUnauthorizedException() {
+        UpdateNameRequest request = UpdateNameRequest.builder()
+                .newFullName("Arthur Salas")
+                .build();
+        Authentication auth = mock(Authentication.class);
+        auth.setAuthenticated(false);
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(auth.isAuthenticated()).thenReturn(false);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+        Assertions.assertThatThrownBy(() -> userService.updateUsername(request))
+                .isInstanceOf(UserUnauthorizedException.class)
+                .hasMessageContaining(UserErrorMsg.UNAUTHORIZED.label);
+        verify(userRepo, never()).save(any());
     }
 
     @Test
