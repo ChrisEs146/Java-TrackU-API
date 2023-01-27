@@ -8,6 +8,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = ConfirmPasswordValidator.class)
 public @interface ComparePasswords {
+    String password();
+    String confirmPassword();
     String message() default "Passwords do not match";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

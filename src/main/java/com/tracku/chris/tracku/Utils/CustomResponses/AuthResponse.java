@@ -2,8 +2,8 @@ package com.tracku.chris.tracku.Utils.CustomResponses;
 
 import lombok.*;
 
-@Getter
 @Setter
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

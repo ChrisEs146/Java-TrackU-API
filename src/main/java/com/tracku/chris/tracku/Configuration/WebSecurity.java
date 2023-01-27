@@ -19,11 +19,15 @@ public class WebSecurity {
     private static final String[] WHITE_LIST = {"/api/v1/users/register", "/api/v1/users/login"};
     private final AuthenticationProvider authProvider;
     private final JwtAuthenticationFilter jwtFilter;
+    private final AuthEntryPoint authEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(authEntryPoint)
+                .and()
                 .authorizeHttpRequests()
                 .requestMatchers(WHITE_LIST)
                 .permitAll()

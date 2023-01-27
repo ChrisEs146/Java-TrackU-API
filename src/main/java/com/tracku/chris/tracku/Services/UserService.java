@@ -1,20 +1,18 @@
 package com.tracku.chris.tracku.Services;
-import com.tracku.chris.tracku.Entities.User.Role;
-import com.tracku.chris.tracku.Entities.User.User;
+import com.tracku.chris.tracku.Entities.User.CustomUserDetails;
+import com.tracku.chris.tracku.Entities.User.UserEntity;
 import com.tracku.chris.tracku.Interfaces.User.IUserService;
 import com.tracku.chris.tracku.Repositories.UserRepository;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserAlreadyExistsException;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserNotFoundException;
 import com.tracku.chris.tracku.Utils.CustomExceptions.UserUnauthorizedException;
-import com.tracku.chris.tracku.Utils.CustomRequests.Users.AuthRequest;
-import com.tracku.chris.tracku.Utils.CustomRequests.Users.RegisterRequest;
-import com.tracku.chris.tracku.Utils.CustomRequests.Users.UpdateNameRequest;
-import com.tracku.chris.tracku.Utils.CustomResponses.AuthResponse;
-import com.tracku.chris.tracku.Utils.CustomResponses.RegistrationResponse;
-import com.tracku.chris.tracku.Utils.CustomResponses.UpdateNameResponse;
+import com.tracku.chris.tracku.Utils.CustomRequests.Users.*;
+import com.tracku.chris.tracku.Utils.CustomResponses.*;
+import com.tracku.chris.tracku.Utils.ErrorMessages.UserErrorMsg;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,24 +29,24 @@ public class UserService implements IUserService {
 
     @Override
     public RegistrationResponse registerUser(RegisterRequest request){
-        Optional<User> user = userRepo.findByEmail(request.getEmail().strip());
+        Optional<UserEntity> user = userRepo.findByEmail(request.getEmail().strip());
 
         if(user.isPresent()) {
-            throw new UserAlreadyExistsException("User already exists");
+            throw new UserAlreadyExistsException(UserErrorMsg.USER_EXISTS.label);
         }
 
-        User newUser = User.builder()
-            .fullName(request.getFullName().strip())
+        UserEntity newUser = UserEntity.builder()
+            .full_name(request.getFullName().strip())
             .email(request.getEmail().strip())
-            .role(Role.USER)
-            .userPassword(passwordEncoder.encode(request.getPassword().strip()))
+            .user_password(passwordEncoder.encode(request.getPassword().strip()))
             .build();
 
-        userRepo.save(newUser);
+        UserEntity createdUser = userRepo.save(newUser);
 
         return RegistrationResponse.builder()
-                .fullName(request.getFullName().strip())
-                .email(request.getEmail().strip())
+                .id(createdUser.getUser_Id())
+                .fullName(createdUser.getFull_name())
+                .email(createdUser.getEmail())
                 .created_at(LocalDateTime.now())
                 .build();
     }
@@ -57,20 +55,20 @@ public class UserService implements IUserService {
     public AuthResponse signInUser(AuthRequest request){
         String requestEmail = request.getEmail().strip();
         String requestPassword = request.getPassword().strip();
-        Optional<User> user = userRepo.findByEmail(requestEmail);
+        Optional<UserEntity> user = userRepo.findByEmail(requestEmail);
 
         if(user.isEmpty()) {
-            throw new UserNotFoundException("User does not exists");
+            throw new UserNotFoundException(UserErrorMsg.NOT_FOUND.label);
         }
-        User _user = user.get();
 
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(requestEmail, requestPassword));
         } catch(RuntimeException ex) {
-            throw new UserUnauthorizedException("User is not authorized. Please, check your credentials");
+            throw new UserUnauthorizedException(UserErrorMsg.INVALID_CREDENTIALS.label);
         }
 
-        String token = jwtService.createToken(_user);
+        UserEntity _user = user.get();
+        String token = jwtService.createToken(_user.getEmail());
 
         return AuthResponse.builder()
                 .token(token)
@@ -79,21 +77,89 @@ public class UserService implements IUserService {
 
     @Override
     public UpdateNameResponse updateUsername(UpdateNameRequest request) {
-        Optional<User> user = userRepo.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-
-        if(user.isEmpty()) {
-            throw new UserNotFoundException("User does not exists");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(!auth.isAuthenticated()) {
+            throw new UserUnauthorizedException(UserErrorMsg.UNAUTHORIZED.label);
         }
 
-        String newName = request.getNewFullName().strip();
-        User _user = user.get();
+        UserEntity user = getAuthUser(auth);
 
-        _user.setFullName(newName);
-        User updatedUser = userRepo.save(_user);
-        System.out.println(updatedUser);
+        String newName = request.getNewFullName().strip();
+        user.setFull_name(newName);
+        UserEntity updatedUser = userRepo.save(user);
+
         return UpdateNameResponse.builder()
-                .fullName(updatedUser.getFullName())
+                .id(updatedUser.getUser_Id())
+                .fullName(updatedUser.getFull_name())
                 .email(updatedUser.getEmail())
                 .build();
+    }
+
+    @Override
+    public UpdatePasswordResponse updatePassword(UpdatePasswordRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(!auth.isAuthenticated()) {
+            throw new UserUnauthorizedException(UserErrorMsg.UNAUTHORIZED.label);
+        }
+
+        UserEntity user = getAuthUser(auth);
+
+        if(!passwordEncoder.matches(request.getCurrentPassword(), user.getUser_password())) {
+            throw new UserUnauthorizedException(UserErrorMsg.INVALID_CURRENT_PASSWORD.label);
+        }
+
+        user.setUser_password(passwordEncoder.encode(request.getNewPassword().strip()));
+        userRepo.save(user);
+
+        return UpdatePasswordResponse.builder().build();
+    }
+
+    @Override
+    public UserInfoResponse getUserInfo() {
+       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+       if(!auth.isAuthenticated()) {
+           throw new UserUnauthorizedException(UserErrorMsg.UNAUTHORIZED.label);
+       }
+
+       UserEntity user = getAuthUser(auth);
+
+        return UserInfoResponse.builder()
+                .id(user.getUser_Id())
+                .fullName(user.getFull_name())
+                .email(user.getEmail())
+                .build();
+    }
+
+    @Override
+    public DeleteUserResponse deleteUser(DeleteUserRequest request) {
+        String requestEmail = request.getEmail().strip();
+        String requestPassword = request.getPassword().strip();
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(!auth.isAuthenticated()) {
+            throw new UserUnauthorizedException(UserErrorMsg.UNAUTHORIZED.label);
+        }
+
+        UserEntity user = getAuthUser(auth);
+        if(!user.getEmail().equals(requestEmail) && !passwordEncoder.matches(requestPassword, user.getUser_password())) {
+            throw new UserUnauthorizedException(UserErrorMsg.INVALID_CREDENTIALS.label);
+        }
+
+        userRepo.delete(user);
+        return DeleteUserResponse.builder()
+                .id(user.getUser_Id())
+                .fullName(user.getFull_name())
+                .email(user.getEmail())
+                .build();
+    }
+
+    /**
+     * Extracts the authenticated user details from an authentication object
+     * @param auth Authentication Auth object from the SCH(Security Context Holder)
+     * @return UserEntity
+     * */
+    private UserEntity getAuthUser(Authentication auth) {
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        return userDetails.getUser();
     }
 }
